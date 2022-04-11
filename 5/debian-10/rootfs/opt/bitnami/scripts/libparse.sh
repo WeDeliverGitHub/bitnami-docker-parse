@@ -106,8 +106,8 @@ parse_initialize() {
         ensure_dir_exists "$PARSE_VOLUME_DIR"
         # Use daemon:root ownership for compatibility when running as a non-root user
         am_i_root && configure_permissions_ownership "$PARSE_VOLUME_DIR" -d "775" -f "664" -u "$PARSE_DAEMON_USER" -g "root"
-        info "Trying to connect to the database server"
-        local -r connection_string="mongodb://${PARSE_DATABASE_USER}:${PARSE_DATABASE_PASSWORD}@${PARSE_DATABASE_HOST}:${PARSE_DATABASE_PORT_NUMBER}/${PARSE_DATABASE_NAME}"
+        info "Trying to connect to the database server 1"
+        local -r connection_string="mongodb+srv://${PARSE_DATABASE_USER}:${PARSE_DATABASE_PASSWORD}@${PARSE_DATABASE_HOST}/${PARSE_DATABASE_NAME}"
         parse_wait_for_mongodb_connection "$connection_string"
 
         info "Configuring Parse with settings provided via environment variables"
@@ -127,12 +127,12 @@ parse_initialize() {
         server_url+="${PARSE_HOST}${PARSE_MOUNT_PATH}"
 
         parse_conf_set "serverURL" "$server_url"
-        parse_conf_set "databaseURI" "$connection_string"
+        parse_conf_set "databaseURI" "$connection_string?${PARSE_DATABASE_OPTIONS}"
         is_boolean_yes "$PARSE_ENABLE_CLOUD_CODE" && parse_conf_set "cloud" "./cloud/main.js"
     else
         warn "Parse config.json detected in persistence. Persisting configuration files is deprecated"
         cp "$persisted_conf_file" "$PARSE_CONF_FILE"
-        info "Trying to connect to the database server"
+        info "Trying to connect to the database server 2"
         local -r connection_string="$(parse_conf_get "db_host")"
         parse_wait_for_mongodb_connection "$connection_string"
     fi
@@ -203,10 +203,11 @@ parse_conf_get() {
 parse_wait_for_mongodb_connection() {
     local -r connection_string="${1:?missing connection string}"
     check_mongodb_connection() {
-        local -r mongo_args=("--host" "$connection_string" "--eval" "db.stats()")
-        local -r res=$(mongo "${mongo_args[@]}")
+        local -r mongo_args=("$connection_string" "--eval" "db.stats()")
+        echo $mongo_args
+        local -r res=$($MONGODB_BIN_DIR/mongosh "${mongo_args[@]}")
         debug "$res"
-        echo "$res" | grep -q '"ok" : 1'
+        echo "$res" | grep -q 'ok: 1'
     }
     if ! retry_while "check_mongodb_connection"; then
         error "Could not connect to the database"

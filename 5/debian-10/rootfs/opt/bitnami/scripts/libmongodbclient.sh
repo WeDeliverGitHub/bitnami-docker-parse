@@ -119,7 +119,7 @@ mongodb_execute() {
     # If password is empty it means no auth, do not specify user
     [[ -z "$password" ]] && final_user=""
 
-    local -a args=("--host" "$host" "--port" "$port")
+    local -a args=("$host")
     [[ -n "$final_user" ]] && args+=("-u" "$final_user")
     [[ -n "$password" ]] && args+=("-p" "$password")
     if [[ -n "$extra_args" ]]; then
@@ -129,5 +129,5 @@ mongodb_execute() {
     fi
     [[ -n "$database" ]] && args+=("$database")
 
-    "$MONGODB_BIN_DIR/mongo" "${args[@]}"
+    "$MONGODB_BIN_DIR/mongosh" "${args[@]}"
 }

@@ -36,6 +36,7 @@ parse_env_vars=(
     PARSE_DATABASE_NAME
     PARSE_DATABASE_USER
     PARSE_DATABASE_PASSWORD
+    PARSE_DATABASE_OPTIONS
     MONGODB_HOST
     MONGODB_PORT_NUMBER
     MONGODB_PORT
@@ -99,5 +100,7 @@ export PARSE_DATABASE_USER="${PARSE_DATABASE_USER:-bn_parse}" # only used during
 PARSE_DATABASE_PASSWORD="${PARSE_DATABASE_PASSWORD:-"${MONGODB_DATABASE_PASSWORD:-}"}"
 PARSE_DATABASE_PASSWORD="${PARSE_DATABASE_PASSWORD:-"${MONGODB_PASSWORD:-}"}"
 export PARSE_DATABASE_PASSWORD="${PARSE_DATABASE_PASSWORD:-}" # only used during the first initialization
+export PARSE_DEFAULT_DATABASE_OPTIONS="retryWrites=true&w=majority" # only used at build time
+export PARSE_DATABASE_OPTIONS="${PARSE_DATABASE_OPTIONS:-$PARSE_DEFAULT_DATABASE_OPTIONS}" # only used during the first initialization
 
 # Custom environment variables may be defined below

@@ -53,7 +53,7 @@ done
 unset mongodb_client_env_vars
 
 # Paths
-export MONGODB_BASE_DIR="/opt/bitnami/mongodb-client"
+export MONGODB_BASE_DIR="/opt/bitnami/mongo"
 export MONGODB_BIN_DIR="$MONGODB_BASE_DIR/bin"
 export PATH="${MONGODB_BIN_DIR}:${PATH}"
 
